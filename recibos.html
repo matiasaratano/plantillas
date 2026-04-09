@@ -468,26 +468,14 @@ async function parsearFicha() {
   document.getElementById('btnText').textContent = 'Analizando…';
   status.className = 'ai-status';
 
-  const prompt = `Sos un asistente que extrae datos de fichas de reserva de departamentos para completar recibos de alquiler en Argentina.
-Del siguiente texto, extraé ÚNICAMENTE estos campos en formato JSON. Si un campo no está presente, usá null.
-Campos: nombre (nombre y apellido completo del titular), dni (solo números sin puntos), direccion, localidad, tel (celular), email.
-Respondé ÚNICAMENTE con el JSON, sin texto adicional, sin markdown, sin backticks.
-Texto: ${texto}`;
-
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://deptos-proxy.vercel.app/api/parse', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 400,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ texto })
     });
-    const data = await res.json();
-    const raw = data.content?.find(b => b.type === 'text')?.text || '';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const parsed = await res.json();
     const campos = { nombre:'f-nombre', dni:'f-dni', direccion:'f-direccion', localidad:'f-localidad', tel:'f-tel', email:'f-email' };
     let n = 0;
     for (const [key, id] of Object.entries(campos)) {
