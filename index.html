@@ -233,6 +233,7 @@
   <header>
     <h1>Departamentos Norte</h1>
     <span>Generador de plantillas</span>
+    <a href="https://matiasaratano.github.io/plantillas/recibos.html" style="margin-left:auto; padding:7px 14px; background:var(--accent); color:white; border-radius:7px; font-size:13px; font-weight:600; text-decoration:none; white-space:nowrap;">↗ Recibos</a>
   </header>
 
   <div class="card">
@@ -580,7 +581,7 @@ function generarDetalle(d) {
 
   return 'Detalle de su reserva \u2013 ' + marca + '\n\n'
     + '\u00a1Hola!\n\n'
-    + 'Gracias por reservar con nosotros! Le\u00e9 atentamente la informaci\u00f3n de tu reserva:\n\n'
+    + 'Gracias por reservar en ' + marca + '. Le\u00e9 atentamente la informaci\u00f3n de tu reserva:\n\n'
     + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
     + 'DETALLES DE LA RESERVA\n'
     + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
@@ -638,11 +639,10 @@ function generarDerivacion() {
   waLink = 'https://wa.me/5491124027007?text=' + encodeURIComponent(textoWA);
 
   return 'Hola! Gracias por tu consulta \uD83D\uDE0A\n\n'
-    + 'Para brindarte mejor atenci\u00f3n (y poder enviarte fotos y toda la info del departamento), te pido que me escribas por WhatsApp a través del siguiente link especificando cantidad de personas y fechas:\n\n'
+    + 'Para brindarte mejor atenci\u00f3n (y poder enviarte fotos y toda la info del departamento), te pido que me escribas por WhatsApp:\n\n'
     + '\uD83D\uDCF2 ' + waLink + '\n\n'
-
-    + 'Saludos,\nMat\u00edas \u2013 Departamentos Norte' + '\n'
-    + 'https://www.departamentosnorte.com.ar';
+    + 'O bien guard\u00e1 el n\u00famero +54 9 11 2402-7007 y escrib\u00edme directamente.\n\n'
+    + 'Saludos,\nMat\u00edas \u2013 Departamentos Norte';
 }
 
 // ─── DISPATCHER ──────────────────────────────────────────────
