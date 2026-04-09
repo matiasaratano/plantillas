@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Departamentos Norte – Generador</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f4ef;
+    --surface: #ffffff;
+    --ink: #1a1814;
+    --muted: #7a7570;
+    --accent: #2d5a3d;
+    --accent-light: #e8f0eb;
+    --border: #e0dbd3;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; }
+
+  header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+
+  header span { font-size: 13px; color: var(--muted); font-weight: 300; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    margin-bottom: 16px;
+  }
+
+  .tab {
+    padding: 8px 4px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .tab.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .tab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  select, input[type="date"], input[type="number"], input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--bg);
+    appearance: none;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  select:focus, input:focus { border-color: var(--accent); }
+
+  .select-wrapper { position: relative; }
+  .select-wrapper::after {
+    content: '\25BE';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 12px;
+  }
+
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--muted); }
+
+  .summary {
+    display: flex;
+    gap: 20px;
+    padding: 14px 16px;
+    background: var(--accent-light);
+    border-radius: 8px;
+    margin-top: 12px;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+
+  .summary .s-item { display: flex; flex-direction: column; gap: 2px; }
+  .summary .s-label { font-size: 11px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .summary .s-val { font-weight: 600; color: var(--ink); font-size: 15px; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    margin-bottom: 8px;
+  }
+
+  .btn-primary:hover { opacity: 0.88; }
+
+  .btn-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 10px; }
+
+  .btn-secondary {
+    padding: 11px;
+    background: transparent;
+    color: var(--ink);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-secondary:hover { border-color: var(--ink); background: var(--ink); color: white; }
+
+  .btn-wa { border-color: #25d366; color: #25d366; }
+  .btn-wa:hover { background: #25d366 !important; border-color: #25d366 !important; color: white !important; }
+
+  .btn-link { border-color: #0088cc; color: #0088cc; }
+  .btn-link:hover { background: #0088cc !important; border-color: #0088cc !important; color: white !important; }
+
+  textarea {
+    width: 100%;
+    height: 320px;
+    padding: 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Mono', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--bg);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  .hidden { display: none; }
+
+  .info-box {
+    background: var(--accent-light);
+    border: 1px solid #c2d9c9;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--accent);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--ink);
+    color: white;
+    padding: 10px 22px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Departamentos Norte</h1>
+    <span>Generador de plantillas</span>
+  </header>
+
+  <div class="card">
+    <div class="card-label">Tipo de mensaje</div>
+    <div class="tabs">
+      <button class="tab active" id="tab-cotizacion" onclick="setTab('cotizacion')">💬 Cotizaci&oacute;n</button>
+      <button class="tab" id="tab-ficha" onclick="setTab('ficha')">📄 Ficha</button>
+      <button class="tab" id="tab-detalle" onclick="setTab('detalle')">💰 Detalle</button>
+      <button class="tab" id="tab-nodisponible" onclick="setTab('nodisponible')">❌ Sin disp.</button>
+      <button class="tab" id="tab-derivacion" onclick="setTab('derivacion')">↗ Derivaci&oacute;n</button>
+    </div>
+
+    <!-- Depto selector (shared, hidden for derivacion) -->
+    <div id="deptoWrap">
+      <div class="card-label">Departamento</div>
+      <div class="select-wrapper">
+        <select id="depto" onchange="onDeptoChange()">
+          <option value="1">Depto 1 &ndash; Planta Baja (Villa Gesell)</option>
+          <option value="2">Depto 2 &ndash; Planta Alta (Villa Gesell)</option>
+          <option value="3">Depto 3 &ndash; Monoambiente (Villa Gesell)</option>
+          <option value="sanber">Duplex San Bernardo</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- COTIZACION INPUTS -->
+  <div class="card" id="cotizacionInputs">
+    <div class="card-label">Datos para cotizaci&oacute;n</div>
+    <div class="row" style="margin-bottom:10px">
+      <div class="field">
+        <label>Fecha desde</label>
+        <input type="date" id="cot-desde" onchange="actualizarResumenCot()">
+      </div>
+      <div class="field">
+        <label>Fecha hasta</label>
+        <input type="date" id="cot-hasta" onchange="actualizarResumenCot()">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Precio por noche ($)</label>
+        <input type="number" id="cot-pxn" placeholder="0" oninput="actualizarResumenCot()">
+      </div>
+      <div class="field">
+        <label>Personas</label>
+        <input type="number" id="cot-personas" placeholder="2" min="1" max="6">
+      </div>
+    </div>
+    <div class="summary" id="resumen-cot" style="display:none">
+      <div class="s-item"><span class="s-label">Noches</span><span class="s-val" id="rc-noches">&ndash;</span></div>
+      <div class="s-item"><span class="s-label">Total</span><span class="s-val" id="rc-total">&ndash;</span></div>
+      <div class="s-item"><span class="s-label">Se&ntilde;a 30%</span><span class="s-val" id="rc-sena">&ndash;</span></div>
+    </div>
+  </div>
+
+  <!-- DETALLE INPUTS -->
+  <div class="card hidden" id="detalleInputs">
+    <div class="card-label">Datos de la reserva</div>
+    <div class="row">
+      <div class="field">
+        <label>Check-in</label>
+        <input type="date" id="checkin" onchange="actualizarResumenDet()">
+      </div>
+      <div class="field">
+        <label>Check-out</label>
+        <input type="date" id="checkout" onchange="actualizarResumenDet()">
+      </div>
+    </div>
+    <div class="field" style="margin-top:10px">
+      <label>Costo total ($)</label>
+      <input type="number" id="total" placeholder="0" oninput="actualizarResumenDet()">
+    </div>
+    <div class="summary" id="resumen-det" style="display:none">
+      <div class="s-item"><span class="s-label">Noches</span><span class="s-val" id="rd-noches">&ndash;</span></div>
+      <div class="s-item"><span class="s-label">Total</span><span class="s-val" id="rd-total">&ndash;</span></div>
+      <div class="s-item"><span class="s-label">Se&ntilde;a 30%</span><span class="s-val" id="rd-sena">&ndash;</span></div>
+      <div class="s-item"><span class="s-label">Saldo</span><span class="s-val" id="rd-saldo">&ndash;</span></div>
+    </div>
+  </div>
+
+  <!-- SIN DISPONIBILIDAD INPUTS -->
+  <div class="card hidden" id="nodisponibleInputs">
+    <div class="card-label">Fechas solicitadas</div>
+    <div class="row">
+      <div class="field">
+        <label>Desde</label>
+        <input type="date" id="nd-desde">
+      </div>
+      <div class="field">
+        <label>Hasta</label>
+        <input type="date" id="nd-hasta">
+      </div>
+    </div>
+  </div>
+
+  <!-- DERIVACION INFO -->
+  <div class="card hidden" id="derivacionInputs">
+    <div class="info-box">
+      Genera el link de WhatsApp con el texto prellenado para que el cliente complete fechas y cantidad de personas. Cop&iacute;alo para Instagram o email.
+    </div>
+  </div>
+
+  <!-- Generar -->
+  <button class="btn-primary" onclick="generar()">✦ Generar plantilla</button>
+
+  <!-- Resultado -->
+  <div class="card" style="padding:0; overflow:hidden">
+    <textarea id="resultado" placeholder="La plantilla generada aparecer&aacute; aqu&iacute;&hellip;"></textarea>
+  </div>
+
+  <div class="btn-row" id="botonesDefault">
+    <button class="btn-secondary" onclick="copiar()">📋 Copiar texto</button>
+    <button class="btn-secondary btn-wa" onclick="abrirWA()">📲 WhatsApp</button>
+    <button class="btn-secondary" style="display:none" id="btnExtra"></button>
+  </div>
+
+  <div class="btn-row hidden" id="botonesDerivacion">
+    <button class="btn-secondary" onclick="copiarLink()">🔗 Copiar link</button>
+    <button class="btn-secondary btn-wa" onclick="abrirLinkWA()">📲 Abrir link</button>
+    <button class="btn-secondary" onclick="copiarTextoDerivacion()">📋 Copiar texto</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let modoActual = 'cotizacion';
+let waLink = '';
+
+const TABS_CON_DEPTO = ['cotizacion','ficha','detalle','nodisponible'];
+
+function setTab(tab) {
+  modoActual = tab;
+  ['cotizacion','ficha','detalle','nodisponible','derivacion'].forEach(t => {
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+  document.getElementById('cotizacionInputs').classList.toggle('hidden', tab !== 'cotizacion');
+  document.getElementById('detalleInputs').classList.toggle('hidden', tab !== 'detalle');
+  document.getElementById('nodisponibleInputs').classList.toggle('hidden', tab !== 'nodisponible');
+  document.getElementById('derivacionInputs').classList.toggle('hidden', tab !== 'derivacion');
+  document.getElementById('deptoWrap').classList.toggle('hidden', tab === 'derivacion');
+  document.getElementById('botonesDefault').classList.toggle('hidden', tab === 'derivacion');
+  document.getElementById('botonesDerivacion').classList.toggle('hidden', tab !== 'derivacion');
+  document.getElementById('resultado').value = '';
+  waLink = '';
+}
+
+const deptos = {
+  "1": {
+    nombre: "Departamento 1 (Planta Baja)",
+    ubicacion: "Alameda 206 y 308, Barrio Norte, Villa Gesell. Zona tranquila, cerca del centro, la playa y el bosque.",
+    capacidad: "2 ambientes, m\u00e1ximo 4 personas",
+    distribucion: "  \u2022 1 dormitorio matrimonial\n  \u2022 1 cama individual y 1 carrito (en el comedor)",
+    equipamiento: "  \u2022 2 TV Smart\n  \u2022 Parrilla privada\n  \u2022 Cocina equipada (incluye microondas)\n  \u2022 Ba\u00f1o completo\n  \u2022 Wi-Fi",
+    acompanantes: 3,
+    vehiculos: true
+  },
+  "2": {
+    nombre: "Departamento 2 (Planta Alta)",
+    ubicacion: "Alameda 206 y 308, Barrio Norte, Villa Gesell. Zona tranquila, cerca del centro, la playa y el bosque.",
+    capacidad: "2 ambientes, m\u00e1ximo 4 personas",
+    distribucion: "  \u2022 1 dormitorio matrimonial\n  \u2022 1 cama individual y 1 carrito (en el comedor)",
+    equipamiento: "  \u2022 2 TV Smart\n  \u2022 Parrilla privada\n  \u2022 Cocina equipada (incluye microondas)\n  \u2022 Ba\u00f1o completo\n  \u2022 Wi-Fi",
+    acompanantes: 3,
+    vehiculos: true
+  },
+  "3": {
+    nombre: "Departamento 3 (Monoambiente)",
+    ubicacion: "Alameda 206 y 308, Barrio Norte, Villa Gesell. Zona tranquila, cerca del centro, la playa y el bosque.",
+    capacidad: "1 ambiente, m\u00e1ximo 2 personas",
+    distribucion: "",
+    equipamiento: "  \u2022 TV Smart\n  \u2022 Cocina equipada (incluye microondas)\n  \u2022 Ba\u00f1o completo\n  \u2022 Wi-Fi\n  \u2022 Parrilla privada",
+    acompanantes: 1,
+    vehiculos: true
+  },
+  "sanber": {
+    nombre: "Duplex \u2013 Departamento 3 (San Bernardo)",
+    marca: "San Bernardo",
+    intro: "Gracias por reservar nuestro Duplex \u2013 Departamento 3 en San Bernardo. A continuaci\u00f3n te env\u00edo toda la informaci\u00f3n:",
+    ubicacion: "Santiago del Estero 1645, entre Drumond y Machado, San Bernardo. Zona tranquila, frente a la Plaza del Bosque.",
+    capacidad: "3 ambientes, m\u00e1ximo 6 personas",
+    distribucion: "  \u2022 1 dormitorio matrimonial\n  \u2022 1 dormitorio con 3 camas individuales\n  \u2022 1 cama individual en living (planta baja)",
+    equipamiento: "  \u2022 2 TV (comedor y dormitorio matrimonial)\n  \u2022 Parrilla en patio privado\n  \u2022 Cocina equipada (incluye microondas)\n  \u2022 Ba\u00f1o completo en planta alta y toilet en planta baja\n  \u2022 Wi-Fi y cable\n  \u2022 Estacionamiento privado",
+    acompanantes: 5,
+    vehiculos: false
+  }
+};
+
+function fmt(n) {
+  return '$' + Number(n).toLocaleString('es-AR');
+}
+
+function fmtFecha(str) {
+  if (!str) return '[fecha]';
+  const [y, m, d] = str.split('-');
+  const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return parseInt(d) + ' de ' + meses[parseInt(m)-1] + ' de ' + y;
+}
+
+function noches(desde, hasta) {
+  if (!desde || !hasta) return 0;
+  return Math.max(0, Math.round((new Date(hasta) - new Date(desde)) / 86400000));
+}
+
+function onDeptoChange() {}
+
+function actualizarResumenCot() {
+  const desde = document.getElementById('cot-desde').value;
+  const hasta = document.getElementById('cot-hasta').value;
+  const pxn = Number(document.getElementById('cot-pxn').value || 0);
+  const n = noches(desde, hasta);
+  const total = n * pxn;
+  const sena = Math.round(total * 0.3);
+  const res = document.getElementById('resumen-cot');
+  if (n > 0 || pxn > 0) {
+    res.style.display = 'flex';
+    document.getElementById('rc-noches').textContent = n || '\u2013';
+    document.getElementById('rc-total').textContent = total ? fmt(total) : '\u2013';
+    document.getElementById('rc-sena').textContent = total ? fmt(sena) : '\u2013';
+  } else {
+    res.style.display = 'none';
+  }
+}
+
+function actualizarResumenDet() {
+  const ci = document.getElementById('checkin').value;
+  const co = document.getElementById('checkout').value;
+  const tot = Number(document.getElementById('total').value || 0);
+  const n = noches(ci, co);
+  const sena = Math.round(tot * 0.3);
+  const saldo = tot - sena;
+  const res = document.getElementById('resumen-det');
+  if (n > 0 || tot > 0) {
+    res.style.display = 'flex';
+    document.getElementById('rd-noches').textContent = n || '\u2013';
+    document.getElementById('rd-total').textContent = tot ? fmt(tot) : '\u2013';
+    document.getElementById('rd-sena').textContent = tot ? fmt(sena) : '\u2013';
+    document.getElementById('rd-saldo').textContent = tot ? fmt(saldo) : '\u2013';
+  } else {
+    res.style.display = 'none';
+  }
+}
+
+// ─── GENERADORES ─────────────────────────────────────────────
+
+function generarCotizacion(d) {
+  const desde = document.getElementById('cot-desde').value;
+  const hasta = document.getElementById('cot-hasta').value;
+  const pxn = Number(document.getElementById('cot-pxn').value || 0);
+  const personas = document.getElementById('cot-personas').value || '';
+  const n = noches(desde, hasta);
+  const total = n * pxn;
+  const sena = Math.round(total * 0.3);
+  const saldo = total - sena;
+  const esDepNorte = !d.marca;
+  const marca = esDepNorte ? 'Departamentos Norte' : 'San Bernardo';
+  const firmaWeb = esDepNorte ? '\n\uD83C\uDF10 https://www.departamentosnorte.com.ar' : '';
+  const distribucionSection = d.distribucion ? '\nDistribuci\u00f3n:\n' + d.distribucion + '\n' : '';
+
+  return '\u00a1Hola!\n\n'
+    + 'Te paso la informaci\u00f3n del ' + d.nombre + ':\n\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'DEPARTAMENTO\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'Direcci\u00f3n: ' + d.ubicacion + '\n'
+    + 'Capacidad: ' + d.capacidad + '\n'
+    + distribucionSection
+    + '\nEquipamiento:\n' + d.equipamiento + '\n\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'COTIZACI\u00d3N\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + (desde ? '  \u2022 Fechas: ' + fmtFecha(desde) + ' al ' + fmtFecha(hasta) + '\n' : '')
+    + (personas ? '  \u2022 Personas: ' + personas + '\n' : '')
+    + (n > 0 ? '  \u2022 Noches: ' + n + '\n' : '')
+    + (pxn > 0 ? '  \u2022 Precio por noche: ' + fmt(pxn) + '\n' : '')
+    + (total > 0 ? '  \u2022 Total: ' + fmt(total) + '\n'
+      + '  \u2022 Se\u00f1a para confirmar (30%): ' + fmt(sena) + '\n'
+      + '  \u2022 Saldo al ingresar: ' + fmt(saldo) + '\n' : '')
+    + '\n'
+    + 'Si est\u00e1s interesado/a, te mando el formulario para completar y reservar.\n\n'
+    + 'Cualquier consulta, quedo a disposici\u00f3n.\n\n'
+    + 'Saludos,\nMat\u00edas\n'
+    + '\uD83D\uDCDE +54 9 11 2402-7007'
+    + firmaWeb;
+}
+
+function generarFicha(d) {
+  const acompLabel = d.acompanantes === 1 ? 'Acompa\u00f1ante' : 'Acompa\u00f1antes';
+  let acomp = '';
+  for (let i = 1; i <= d.acompanantes; i++) acomp += '  ' + i + '.\n';
+  const vehiculoLine = d.vehiculos ? '  \u2022 Veh\u00edculos: No est\u00e1 permitido ingresar veh\u00edculos (motos, cuatriciciclos, etc.) al predio.\n' : '';
+  const esDepNorte = !d.marca;
+  const introTexto = d.intro ? d.intro : 'Gracias por reservar en Departamentos Norte. A continuaci\u00f3n te env\u00edo los datos para continuar:';
+  const firmaWeb = esDepNorte ? '\n\uD83C\uDF10 https://www.departamentosnorte.com.ar' : '';
+
+  return 'Asunto: Confirmaci\u00f3n de Reserva \u2013 ' + d.nombre + '\n\n'
+    + '\u00a1Hola!\n\n'
+    + introTexto + '\n\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'POL\u00cdTICAS DE PAGO\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + '  \u2022 M\u00e9todo de pago: Transferencia bancaria.\n'
+    + '  \u2022 Reserva: Dep\u00f3sito del 30% dentro de las 48 hs de recibir los datos bancarios. Pasado ese plazo, la reserva puede ser cancelada.\n'
+    + '  \u2022 Saldo restante: 70% en efectivo al momento del check-in.\n'
+    + '  \u2022 Confirmaci\u00f3n: Una vez recibido el formulario, te enviamos los datos bancarios.\n\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'FORMULARIO DE INSCRIPCI\u00d3N\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'Por favor, complet\u00e1 los datos y envi\u00e1los por WhatsApp al +54 9 11 2402-7007:\n\n'
+    + 'Datos del titular:\n'
+    + '  \u2022 Nombre y apellido:\n'
+    + '  \u2022 DNI:\n'
+    + '  \u2022 Direcci\u00f3n:\n'
+    + '  \u2022 Localidad:\n'
+    + '  \u2022 Tel\u00e9fono celular:\n'
+    + '  \u2022 Correo electr\u00f3nico:\n\n'
+    + acompLabel + ' (Nombre, Apellido y DNI):\n'
+    + acomp + '\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'POL\u00cdTICAS ADICIONALES\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + '  \u2022 Solo familias: No se aceptan grupos de j\u00f3venes.\n'
+    + '  \u2022 Ropa blanca: No se incluyen s\u00e1banas ni toallas.\n'
+    + '  \u2022 No se permiten fiestas ni eventos.\n'
+    + vehiculoLine + '\n'
+    + 'Cualquier duda o consulta, quedo a tu disposici\u00f3n.\n\n'
+    + 'Saludos cordiales,\nMat\u00edas\n'
+    + '\uD83D\uDCDE +54 9 11 2402-7007'
+    + firmaWeb;
+}
+
+function generarDetalle(d) {
+  const ci = document.getElementById('checkin').value;
+  const co = document.getElementById('checkout').value;
+  const tot = Number(document.getElementById('total').value || 0);
+  const n = noches(ci, co);
+  const sena = Math.round(tot * 0.3);
+  const saldo = tot - sena;
+  const vehiculoLine = d.vehiculos ? '  \u2022 No est\u00e1 permitido ingresar veh\u00edculos al predio (motos, cuatriciciclos, etc.).\n' : '';
+  const esDepNorte = !d.marca;
+  const marca = esDepNorte ? 'Departamentos Norte' : 'San Bernardo';
+  const firmaWeb = esDepNorte ? '\n\uD83C\uDF10 https://www.departamentosnorte.com.ar' : '';
+
+  return 'Detalle de su reserva \u2013 ' + marca + '\n\n'
+    + '\u00a1Hola!\n\n'
+    + 'Gracias por reservar con nosotros! Le\u00e9 atentamente la informaci\u00f3n de tu reserva:\n\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'DETALLES DE LA RESERVA\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + '  \u2022 Departamento: ' + d.nombre + '\n'
+    + '  \u2022 Check-in: ' + fmtFecha(ci) + ' a partir de las 14:00 hs.\n'
+    + '  \u2022 Check-out: ' + fmtFecha(co) + ' hasta las 10:00 hs.\n'
+    + '  \u2022 Duraci\u00f3n: ' + n + ' noches\n'
+    + '  \u2022 Costo total: ' + fmt(tot) + '\n'
+    + '  \u2022 Se\u00f1a para confirmar (30%): ' + fmt(sena) + '\n'
+    + '    \u21b3 Este dep\u00f3sito debe realizarse dentro de las 48 hs de recibir los datos bancarios. Pasado ese plazo, la reserva puede cancelarse.\n'
+    + '  \u2022 Saldo a pagar al ingresar: ' + fmt(saldo) + '\n\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'POL\u00cdTICAS Y CONDICIONES\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + '  \u2022 No incluye ropa blanca (s\u00e1banas ni toallas).\n'
+    + '  \u2022 Solo para familias (no se permiten grupos de j\u00f3venes).\n'
+    + '  \u2022 No est\u00e1 permitido realizar fiestas ni eventos.\n'
+    + vehiculoLine
+    + '  \u2022 La reserva se confirma \u00fanicamente tras recibir el dep\u00f3sito del 30%.\n\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'M\u00c9TODO DE PAGO\n'
+    + '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n'
+    + 'Transferencia bancaria o Mercado Pago.\n'
+    + 'Cuenta a nombre de Mat\u00edas Nicol\u00e1s Aratano:\n'
+    + '  \u2022 CVU: 0000003100056995782339\n'
+    + '  \u2022 Alias: maratano.mp\n'
+    + '  \u2022 CUIT/CUIL: 23-35727388-9\n\n'
+    + 'Por favor, envi\u00e1 el comprobante al WhatsApp una vez realizado el pago.\n\n'
+    + 'Muchas gracias por elegirnos. Quedamos a disposici\u00f3n.\n\n'
+    + 'Saludos cordiales,\nMat\u00edas\n'
+    + '\uD83D\uDCDE +54 9 11 2402-7007'
+    + firmaWeb;
+}
+
+function generarNoDisponible(d) {
+  const desde = document.getElementById('nd-desde').value;
+  const hasta = document.getElementById('nd-hasta').value;
+  const esDepNorte = !d.marca;
+  const firmaWeb = esDepNorte ? '\n\uD83C\uDF10 https://www.departamentosnorte.com.ar' : '';
+  const fechas = (desde && hasta)
+    ? 'del ' + fmtFecha(desde) + ' al ' + fmtFecha(hasta)
+    : 'para las fechas consultadas';
+
+  return '\u00a1Hola!\n\n'
+    + 'Gracias por tu consulta.\n\n'
+    + 'Lamentablemente el ' + d.nombre + ' no tiene disponibilidad ' + fechas + '.\n\n'
+    + '\u00bfTen\u00e9s flexibilidad de fechas? Con gusto te consulto disponibilidad para otras fechas.\n\n'
+    + 'Saludos,\nMat\u00edas\n'
+    + '\uD83D\uDCDE +54 9 11 2402-7007'
+    + firmaWeb;
+}
+
+function generarDerivacion() {
+  const textoWA = 'Hola! Quiero consultar disponibilidad:\n- Cantidad de personas:\n- Fecha desde:\n- Fecha hasta:';
+  waLink = 'https://wa.me/5491124027007?text=' + encodeURIComponent(textoWA);
+
+  return 'Hola! Gracias por tu consulta \uD83D\uDE0A\n\n'
+    + 'Para brindarte mejor atenci\u00f3n (y poder enviarte fotos y toda la info del departamento), te pido que me escribas por WhatsApp a través del siguiente link especificando cantidad de personas y fechas:\n\n'
+    + '\uD83D\uDCF2 ' + waLink + '\n\n'
+
+    + 'Saludos,\nMat\u00edas \u2013 Departamentos Norte' + '\n'
+    + 'https://www.departamentosnorte.com.ar';
+}
+
+// ─── DISPATCHER ──────────────────────────────────────────────
+
+function generar() {
+  const d = deptos[document.getElementById('depto').value];
+  let txt = '';
+  if (modoActual === 'cotizacion') txt = generarCotizacion(d);
+  else if (modoActual === 'ficha')  txt = generarFicha(d);
+  else if (modoActual === 'detalle') txt = generarDetalle(d);
+  else if (modoActual === 'nodisponible') txt = generarNoDisponible(d);
+  else if (modoActual === 'derivacion') txt = generarDerivacion();
+  document.getElementById('resultado').value = txt;
+  document.getElementById('resultado').scrollTop = 0;
+}
+
+function copiar() {
+  const txt = document.getElementById('resultado').value;
+  if (!txt.trim()) { showToast('Gener\u00e1 una plantilla primero'); return; }
+  navigator.clipboard.writeText(txt).then(() => showToast('\u00a1Copiado!'));
+}
+
+function abrirWA() {
+  const txt = document.getElementById('resultado').value;
+  if (!txt.trim()) { showToast('Gener\u00e1 una plantilla primero'); return; }
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt));
+}
+
+function copiarLink() {
+  if (!waLink) { showToast('Gener\u00e1 la plantilla primero'); return; }
+  navigator.clipboard.writeText(waLink).then(() => showToast('Link copiado!'));
+}
+
+function abrirLinkWA() {
+  if (!waLink) { showToast('Gener\u00e1 la plantilla primero'); return; }
+  window.open(waLink);
+}
+
+function copiarTextoDerivacion() {
+  const txt = document.getElementById('resultado').value;
+  if (!txt.trim()) { showToast('Gener\u00e1 la plantilla primero'); return; }
+  navigator.clipboard.writeText(txt).then(() => showToast('Texto copiado!'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recibos – Departamentos Norte</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@300;400;500;600&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0ece3;
+    --surface: #ffffff;
+    --surface2: #f7f4ef;
+    --ink: #1a1814;
+    --muted: #7a7570;
+    --accent: #2d5a3d;
+    --accent-light: #e8f0eb;
+    --accent-dim: #e8f0eb;
+    --border: #e0dbd3;
+    --radius: 10px;
+    --green: #2d7a4f;
+    --red: #c0392b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 24px 16px 60px; }
+  .container { max-width: 820px; margin: 0 auto; }
+
+  header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  header h1 { font-family: 'Playfair Display', serif; font-size: 24px; color: var(--ink); }
+  header span { font-size: 13px; color: var(--muted); font-weight: 300; }
+
+  .main-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 20px; }
+  .main-tab { padding: 11px; border: 1.5px solid var(--border); border-radius: var(--radius); background: transparent; color: var(--muted); font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .main-tab.active { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 600; }
+  .main-tab:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-bottom: 16px; }
+  .card-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .card-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .paste-area { width: 100%; min-height: 120px; padding: 14px; background: var(--surface2); border: 1.5px dashed var(--border); border-radius: var(--radius); font-family: 'Source Sans 3', sans-serif; font-size: 13px; color: var(--ink); resize: vertical; outline: none; transition: border-color 0.2s; line-height: 1.6; }
+  .paste-area:focus { border-color: var(--accent); border-style: solid; }
+  .paste-area::placeholder { color: var(--muted); }
+
+  .prompt-box { width: 100%; padding: 12px 14px; background: var(--accent-dim); border: 1px solid var(--accent); border-radius: var(--radius); font-family: 'Source Sans 3', sans-serif; font-size: 12.5px; color: var(--accent); line-height: 1.5; margin-top: 10px; white-space: pre-wrap; display: none; cursor: text; }
+
+  .ai-btn { width: 100%; margin-top: 10px; padding: 12px; background: var(--accent); color: #ffffff; border: none; border-radius: var(--radius); font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+  .ai-btn:hover { opacity: 0.88; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); }
+  .field input, .field select, .field textarea { padding: 9px 12px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: var(--ink); outline: none; transition: border-color 0.15s; appearance: none; -webkit-appearance: none; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+  .field input.ai-filled { border-color: var(--green); background: rgba(45,122,79,0.07); }
+  .field textarea { resize: none; height: 54px; line-height: 1.4; }
+  .select-wrap { position: relative; }
+  .select-wrap::after { content: '\25BE'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: 11px; }
+  .section-divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .subsection-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 12px; font-weight: 600; }
+
+  .monto-display { padding: 10px 14px; background: var(--accent-light); border: 1px solid #c2d9c9; border-radius: 6px; font-size: 13px; color: var(--accent); font-style: italic; min-height: 38px; display: flex; align-items: center; }
+
+  .ai-status { display: none; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-top: 10px; align-items: center; gap: 8px; }
+  .ai-status.success { display: flex; background: #e8f0eb; border: 1px solid #c2d9c9; color: var(--green); }
+  .ai-status.error { display: flex; background: #fdf0ef; border: 1px solid #f5c6c2; color: var(--red); }
+
+  .action-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .btn-act { padding: 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; background: transparent; color: var(--ink); transition: all 0.15s; }
+  .btn-act:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .btn-act.primary { background: var(--accent); border-color: var(--accent); color: #ffffff; font-weight: 600; }
+  .btn-act.primary:hover { opacity: 0.88; }
+
+  /* ─── INQUILINOS DB ─── */
+  .inq-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .inq-table th { text-align: left; padding: 8px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+  .inq-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--ink); vertical-align: top; }
+  .inq-table tr:hover td { background: var(--surface2); }
+  .inq-table .tag { display: inline-block; padding: 2px 8px; background: var(--accent-light); color: var(--accent); border-radius: 99px; font-size: 11px; }
+  .empty-state { text-align: center; padding: 32px; color: var(--muted); font-size: 13px; }
+  .db-actions { display: flex; gap: 8px; margin-bottom: 14px; }
+  .btn-sm { padding: 7px 14px; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 500; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.15s; }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-sm.danger:hover { border-color: var(--red); color: var(--red); }
+  .inq-load-btn { font-size: 11px; color: var(--accent); background: none; border: none; cursor: pointer; text-decoration: underline; font-family: 'Source Sans 3', sans-serif; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--ink); color: white; padding: 10px 20px; border-radius: 99px; font-size: 13px; font-weight: 600; transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1); pointer-events: none; z-index: 100; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ─── RECIBO IMPRIMIBLE ─── */
+  #recibo-preview {
+    background: white; color: #111; border-radius: var(--radius);
+    padding: 38px 44px; font-family: 'Source Serif 4', serif; font-size: 13.5px;
+    line-height: 1.65; box-shadow: 0 8px 40px rgba(0,0,0,0.5); position: relative;
+  }
+  .recibo-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-35deg); font-size: 80px; font-weight: 700; color: rgba(0,0,0,0.03); pointer-events: none; white-space: nowrap; font-family: 'Playfair Display', serif; letter-spacing: 0.05em; }
+  .recibo-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 2px solid #111; }
+  .recibo-logo-area h2 { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1.3; }
+  .recibo-logo-area p { font-size: 12px; color: #555; margin-top: 3px; font-family: 'Source Sans 3', sans-serif; }
+  .recibo-meta { text-align: right; font-family: 'Source Sans 3', sans-serif; }
+  .recibo-meta .nro { font-size: 22px; font-weight: 700; font-family: 'Playfair Display', serif; }
+  .recibo-meta .tipo { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: #777; margin-top: 2px; }
+  .recibo-meta .fecha { font-size: 12px; color: #444; margin-top: 4px; }
+  .recibo-nodoc { text-align: center; font-size: 9px; text-transform: uppercase; letter-spacing: 0.15em; color: #888; padding: 5px 0; border-top: 1px dashed #ccc; border-bottom: 1px dashed #ccc; margin-bottom: 20px; font-family: 'Source Sans 3', sans-serif; }
+  .recibo-body { margin-bottom: 18px; }
+  .recibo-body p { margin-bottom: 10px; text-align: justify; }
+  .recibo-body strong { font-weight: 600; }
+  .recibo-pago { padding: 10px 14px; background: #f8f7f5; border-left: 3px solid #c9a84c; border-radius: 0 4px 4px 0; font-size: 13px; margin-bottom: 22px; font-family: 'Source Sans 3', sans-serif; }
+  .recibo-firma { display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 24px; gap: 4px; }
+  .firma-img { max-height: 64px; max-width: 200px; object-fit: contain; display: block; margin-bottom: 2px; }
+  .firma-img-placeholder { height: 48px; }
+  .firma-line { border-top: 1px solid #333; padding-top: 6px; font-family: 'Source Sans 3', sans-serif; min-width: 200px; }
+  .firma-name { font-weight: 600; font-size: 13px; }
+  .firma-dni { color: #666; font-size: 11px; }
+  .recibo-inquilino { border: 1px solid #ddd; border-radius: 4px; padding: 14px 16px; margin-bottom: 16px; font-family: 'Source Sans 3', sans-serif; }
+  .recibo-inquilino .inq-title { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: #888; margin-bottom: 8px; font-weight: 600; }
+  .recibo-inquilino .inq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; font-size: 12.5px; }
+  .recibo-inquilino .inq-item span:first-child { color: #777; }
+  .recibo-inquilino .inq-item span:last-child { font-weight: 500; }
+  .recibo-pie { text-align: center; padding-top: 12px; border-top: 1px solid #eee; font-size: 12px; font-style: italic; color: #555; font-family: 'Source Serif 4', serif; }
+
+  /* ─── PRINT ─── */
+  @media print {
+    @page { margin: 15mm 18mm; size: A4; }
+    body * { visibility: hidden; }
+    #recibo-preview, #recibo-preview * { visibility: visible; }
+    #recibo-preview {
+      position: fixed !important;
+      top: 0 !important; left: 0 !important;
+      width: 100% !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      background: white !important;
+    }
+  }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Recibos</h1>
+    <span>Departamentos Norte &amp; San Bernardo</span>
+  </header>
+
+  <div class="main-tabs">
+    <button class="main-tab active" onclick="setMainTab('recibo')">📄 Generar recibo</button>
+    <button class="main-tab" onclick="setMainTab('inquilinos')">👥 Base de inquilinos</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════
+       PANEL RECIBO
+  ══════════════════════════════════════════════════ -->
+  <div id="panel-recibo">
+
+    <!-- IA PARSER -->
+    <div class="card">
+      <div class="card-title">✦ Extraer datos desde ficha del cliente</div>
+      <textarea class="paste-area" id="fichaTexto" placeholder="Pegá acá el texto de la ficha que te mandó el cliente (WhatsApp, email, lo que sea) y la IA va a extraer los datos automáticamente…"></textarea>
+      <button class="ai-btn" id="parseBtn" onclick="parsearFicha()">
+        <span class="btn-spinner" id="btnSpinner" style="display:none">⏳ </span>
+        <span id="btnText">✦ Extraer datos con IA</span>
+      </button>
+      <div class="ai-status" id="aiStatus"></div>
+    </div>
+
+    <!-- DATOS DEL RECIBO -->
+    <div class="card">
+      <div class="card-title">Datos del recibo</div>
+
+      <div class="form-grid three" style="margin-bottom:12px">
+        <div class="field">
+          <label>Departamento</label>
+          <div class="select-wrap">
+            <select id="f-depto" onchange="actualizarDepto()">
+              <option value="vg1">Depto 1 – PB (Villa Gesell)</option>
+              <option value="vg2">Depto 2 – PA (Villa Gesell)</option>
+              <option value="vg3">Depto 3 – Mono (Villa Gesell)</option>
+              <option value="sb">Duplex N°3 (San Bernardo)</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>N° de recibo</label>
+          <input type="text" id="f-nro" placeholder="022" oninput="renderRecibo()">
+        </div>
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="f-fecha" oninput="renderRecibo()">
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="field">
+          <label>Monto ($)</label>
+          <input type="number" id="f-monto" placeholder="287000" oninput="onMontoChange()">
+        </div>
+        <div class="field">
+          <label>Concepto</label>
+          <div class="select-wrap">
+            <select id="f-concepto" onchange="renderRecibo()">
+              <option value="reserva">Seña / Reserva (30%)</option>
+              <option value="saldo">Saldo de alquiler</option>
+              <option value="total">Pago total de alquiler</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="field" style="margin-bottom:12px">
+        <label>Monto en letras</label>
+        <div class="monto-display" id="monto-letras">—</div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="field">
+          <label>Período desde</label>
+          <input type="date" id="f-desde" oninput="renderRecibo()">
+        </div>
+        <div class="field">
+          <label>Período hasta</label>
+          <input type="date" id="f-hasta" oninput="renderRecibo()">
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-bottom:4px">
+        <div class="field">
+          <label>Forma de pago</label>
+          <div class="select-wrap">
+            <select id="f-formapago" onchange="renderRecibo()">
+              <option value="transferencia">Transferencia bancaria</option>
+              <option value="efectivo">Efectivo</option>
+              <option value="mercadopago">Mercado Pago</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>N° comprobante (opcional)</label>
+          <input type="text" id="f-comprobante" placeholder="136893734331" oninput="renderRecibo()">
+        </div>
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="subsection-label">Datos del inquilino</div>
+
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="field">
+          <label>Nombre y apellido</label>
+          <input type="text" id="f-nombre" placeholder="Juan García" oninput="renderRecibo()">
+        </div>
+        <div class="field">
+          <label>DNI</label>
+          <input type="text" id="f-dni" placeholder="28.456.789" oninput="renderRecibo()">
+        </div>
+      </div>
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="field">
+          <label>Dirección</label>
+          <input type="text" id="f-direccion" placeholder="Av. Rivadavia 1234" oninput="renderRecibo()">
+        </div>
+        <div class="field">
+          <label>Localidad</label>
+          <input type="text" id="f-localidad" placeholder="Buenos Aires" oninput="renderRecibo()">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Celular</label>
+          <input type="text" id="f-tel" placeholder="11 5678-9012" oninput="renderRecibo()">
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="text" id="f-email" placeholder="juan@gmail.com" oninput="renderRecibo()">
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="card" id="preview-card">
+      <div class="card-title">Vista previa</div>
+      <div id="recibo-preview">
+        <div class="recibo-watermark">RECIBO</div>
+        <div class="recibo-header">
+          <div class="recibo-logo-area">
+            <h2 id="r-deptonombre">Duplex San Bernardo – N°3</h2>
+            <p id="r-deptodir">Santiago del Estero 1645, San Bernardo</p>
+          </div>
+          <div class="recibo-meta">
+            <div class="nro">N° <span id="r-nro">—</span></div>
+            <div class="tipo">Recibo de reserva</div>
+            <div class="fecha" id="r-fecha">—</div>
+          </div>
+        </div>
+        <div class="recibo-nodoc">✕ &nbsp; Documento no válido como factura &nbsp; ✕</div>
+        <div class="recibo-body">
+          <p>Recibí de <strong id="r-nombre">—</strong> la suma de <strong id="r-monto">$—</strong> pesos argentinos (<span id="r-montol" style="text-transform:uppercase">—</span>) en concepto de <span id="r-concepto">—</span> del departamento <span id="r-deptoref">—</span>, correspondiente al período <strong><span id="r-desde">—</span> al <span id="r-hasta">—</span></strong>.</p>
+        </div>
+        <div class="recibo-pago" id="r-pago">Forma de pago: transferencia bancaria.</div>
+        <div class="recibo-firma">
+          <img id="firma-img" class="firma-img" src="firma.png" onerror="this.style.display='none'; document.getElementById('firma-placeholder').style.display='block'" style="display:block">
+          <div id="firma-placeholder" class="firma-img-placeholder" style="display:none"></div>
+          <div class="firma-line">
+            <div class="firma-name">Aratano Matías Nicolás</div>
+            <div class="firma-dni">DNI: 35.727.388</div>
+          </div>
+        </div>
+        <div class="recibo-inquilino">
+          <div class="inq-title">Datos del inquilino</div>
+          <div class="inq-grid">
+            <div class="inq-item"><span>Nombre: </span><span id="r-inq-nombre">—</span></div>
+            <div class="inq-item"><span>DNI: </span><span id="r-inq-dni">—</span></div>
+            <div class="inq-item"><span>Dirección: </span><span id="r-inq-dir">—</span></div>
+            <div class="inq-item"><span>Localidad: </span><span id="r-inq-loc">—</span></div>
+            <div class="inq-item"><span>Celular: </span><span id="r-inq-tel">—</span></div>
+            <div class="inq-item"><span>Email: </span><span id="r-inq-email">—</span></div>
+          </div>
+        </div>
+        <div class="recibo-pie">
+          Alquiler <span id="r-pie-depto">—</span>. Desde el <span id="r-pie-desde">—</span> hasta el <span id="r-pie-hasta">—</span>.
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="btn-act" onclick="window.print()">🖨️ Imprimir / PDF</button>
+        <button class="btn-act" onclick="copiarTextoRecibo()">📋 Copiar texto</button>
+        <button class="btn-act primary" onclick="guardarInquilino()">💾 Guardar inquilino</button>
+      </div>
+    </div>
+
+  </div><!-- /panel-recibo -->
+
+  <!-- ══════════════════════════════════════════════════
+       PANEL INQUILINOS
+  ══════════════════════════════════════════════════ -->
+  <div id="panel-inquilinos" class="hidden">
+    <div class="card">
+      <div class="card-title">Base de inquilinos</div>
+      <div class="db-actions">
+        <button class="btn-sm" onclick="exportarCSV()">⬇ Exportar CSV</button>
+        <button class="btn-sm danger" onclick="limpiarDB()">✕ Borrar todo</button>
+      </div>
+      <div id="inq-tabla-wrap">
+        <div class="empty-state">No hay inquilinos guardados aún.<br>Generá un recibo y presioná "Guardar inquilino".</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── TABS ──────────────────────────────────────────────────────
+function setMainTab(tab) {
+  document.querySelectorAll('.main-tab').forEach((b,i) => b.classList.toggle('active', (i===0 && tab==='recibo') || (i===1 && tab==='inquilinos')));
+  document.getElementById('panel-recibo').classList.toggle('hidden', tab !== 'recibo');
+  document.getElementById('panel-inquilinos').classList.toggle('hidden', tab !== 'inquilinos');
+  if (tab === 'inquilinos') renderTablaInquilinos();
+}
+
+// ─── DEPTOS ────────────────────────────────────────────────────
+const deptoConfig = {
+  vg1: { nombre:'Departamento N°1 – Planta Baja', dir:'Alameda 206 y 308, Villa Gesell', ref:'N°1 (Planta Baja) – Alameda 206 y 308, Villa Gesell' },
+  vg2: { nombre:'Departamento N°2 – Planta Alta',  dir:'Alameda 206 y 308, Villa Gesell', ref:'N°2 (Planta Alta) – Alameda 206 y 308, Villa Gesell' },
+  vg3: { nombre:'Departamento N°3 – Monoambiente', dir:'Alameda 206 y 308, Villa Gesell', ref:'N°3 (Monoambiente) – Alameda 206 y 308, Villa Gesell' },
+  sb:  { nombre:'Duplex San Bernardo – N°3',        dir:'Santiago del Estero 1645, San Bernardo', ref:'N°3 (Duplex) – Santiago del Estero 1645, San Bernardo' }
+};
+
+function actualizarDepto() {
+  const d = deptoConfig[document.getElementById('f-depto').value];
+  document.getElementById('r-deptonombre').textContent = d.nombre;
+  document.getElementById('r-deptodir').textContent = d.dir;
+  renderRecibo();
+}
+
+// ─── NÚMERO EN LETRAS ─────────────────────────────────────────
+function numeroALetras(n) {
+  if (!n || isNaN(n)) return '';
+  n = Math.round(Number(n));
+  if (n === 0) return 'CERO';
+  const u = ['','UNO','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE','DIEZ','ONCE','DOCE','TRECE','CATORCE','QUINCE','DIECISÉIS','DIECISIETE','DIECIOCHO','DIECINUEVE'];
+  const d = ['','','VEINTE','TREINTA','CUARENTA','CINCUENTA','SESENTA','SETENTA','OCHENTA','NOVENTA'];
+  const c = ['','CIENTO','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
+  function grupo(n) {
+    if (n === 0) return '';
+    if (n < 20) return u[n] + ' ';
+    if (n < 100) { const t=Math.floor(n/10),o=n%10; return d[t]+(o?' Y '+u[o]:'')+' '; }
+    if (n === 100) return 'CIEN ';
+    return c[Math.floor(n/100)]+' '+grupo(n%100);
+  }
+  let r = '';
+  const mill=Math.floor(n/1000000), mil=Math.floor((n%1000000)/1000), resto=n%1000;
+  if (mill>0) r += (mill===1?'UN MILLÓN ':grupo(mill)+'MILLONES ');
+  if (mil>0) r += (mil===1?'UN MIL ':grupo(mil)+'MIL ');
+  if (resto>0) r += grupo(resto);
+  return r.trim().replace(/\s+/g,' ');
+}
+
+function onMontoChange() {
+  const v = document.getElementById('f-monto').value;
+  document.getElementById('monto-letras').textContent = v ? numeroALetras(v) : '—';
+  renderRecibo();
+}
+
+// ─── FECHAS ────────────────────────────────────────────────────
+function fmtCorta(str) { if(!str) return '—'; const[y,m,d]=str.split('-'); return d+'/'+m+'/'+y.slice(2); }
+function fmtLarga(str) {
+  if(!str) return '—';
+  const[y,m,d]=str.split('-');
+  const mes=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  return parseInt(d)+' de '+mes[parseInt(m)-1]+' de '+y;
+}
+
+// ─── RENDER ────────────────────────────────────────────────────
+function set(id, val) { const e=document.getElementById(id); if(e) e.textContent=val||'—'; }
+
+function renderRecibo() {
+  const nro=document.getElementById('f-nro').value;
+  const fecha=document.getElementById('f-fecha').value;
+  const monto=document.getElementById('f-monto').value;
+  const concepto=document.getElementById('f-concepto').value;
+  const desde=document.getElementById('f-desde').value;
+  const hasta=document.getElementById('f-hasta').value;
+  const fp=document.getElementById('f-formapago').value;
+  const comp=document.getElementById('f-comprobante').value;
+  const nombre=document.getElementById('f-nombre').value;
+  const dc=deptoConfig[document.getElementById('f-depto').value];
+
+  const cTextos={reserva:'pago de seña / reserva de alquiler',saldo:'saldo de alquiler',total:'pago total de alquiler'};
+  const pTextos={
+    transferencia:'Transferencia bancaria'+(comp?' (comprobante N°'+comp+')':''),
+    efectivo:'Efectivo',
+    mercadopago:'Mercado Pago'+(comp?' (comprobante N°'+comp+')':'')
+  };
+
+  set('r-nro', nro||'—');
+  set('r-fecha', fecha ? fmtLarga(fecha) : '—');
+  set('r-nombre', nombre||'—');
+  set('r-monto', monto ? '$'+Number(monto).toLocaleString('es-AR') : '$—');
+  set('r-montol', monto ? numeroALetras(monto) : '—');
+  set('r-concepto', cTextos[concepto]);
+  set('r-deptoref', dc.ref);
+  set('r-desde', desde ? fmtCorta(desde) : '—');
+  set('r-hasta', hasta ? fmtCorta(hasta) : '—');
+  document.getElementById('r-pago').textContent = 'Forma de pago: '+pTextos[fp]+'.';
+  set('r-inq-nombre', nombre||'—');
+  set('r-inq-dni', document.getElementById('f-dni').value||'—');
+  set('r-inq-dir', document.getElementById('f-direccion').value||'—');
+  set('r-inq-loc', document.getElementById('f-localidad').value||'—');
+  set('r-inq-tel', document.getElementById('f-tel').value||'—');
+  set('r-inq-email', document.getElementById('f-email').value||'—');
+  set('r-pie-depto', dc.nombre);
+  set('r-pie-desde', desde ? fmtCorta(desde) : '—');
+  set('r-pie-hasta', hasta ? fmtCorta(hasta) : '—');
+}
+
+// ─── API PARSER ───────────────────────────────────────────────
+async function parsearFicha() {
+  const texto = document.getElementById('fichaTexto').value.trim();
+  if (!texto) { showToast('Pegá primero el texto de la ficha'); return; }
+
+  const btn = document.getElementById('parseBtn');
+  const status = document.getElementById('aiStatus');
+  btn.disabled = true;
+  document.getElementById('btnSpinner').style.display = 'inline';
+  document.getElementById('btnText').textContent = 'Analizando…';
+  status.className = 'ai-status';
+
+  const prompt = `Sos un asistente que extrae datos de fichas de reserva de departamentos para completar recibos de alquiler en Argentina.
+Del siguiente texto, extraé ÚNICAMENTE estos campos en formato JSON. Si un campo no está presente, usá null.
+Campos: nombre (nombre y apellido completo del titular), dni (solo números sin puntos), direccion, localidad, tel (celular), email.
+Respondé ÚNICAMENTE con el JSON, sin texto adicional, sin markdown, sin backticks.
+Texto: ${texto}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 400,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const raw = data.content?.find(b => b.type === 'text')?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    const campos = { nombre:'f-nombre', dni:'f-dni', direccion:'f-direccion', localidad:'f-localidad', tel:'f-tel', email:'f-email' };
+    let n = 0;
+    for (const [key, id] of Object.entries(campos)) {
+      if (parsed[key]) {
+        const el = document.getElementById(id);
+        el.value = parsed[key];
+        el.classList.add('ai-filled');
+        setTimeout(() => el.classList.remove('ai-filled'), 3000);
+        n++;
+      }
+    }
+    renderRecibo();
+    status.className = 'ai-status success';
+    status.textContent = '✓ Se completaron ' + n + ' campo' + (n !== 1 ? 's' : '') + '. Revisá y ajustá si hace falta.';
+    showToast('¡Datos extraídos!');
+  } catch(err) {
+    status.className = 'ai-status error';
+    status.textContent = '✕ No se pudo extraer la información. Revisá el texto o completá los campos manualmente.';
+    console.error(err);
+  }
+
+  btn.disabled = false;
+  document.getElementById('btnSpinner').style.display = 'none';
+  document.getElementById('btnText').textContent = '✦ Extraer datos con IA';
+}
+
+// ─── COPIAR TEXTO ──────────────────────────────────────────────
+function copiarTextoRecibo() {
+  const monto=document.getElementById('f-monto').value;
+  const nro=document.getElementById('f-nro').value||'—';
+  const fecha=document.getElementById('f-fecha').value;
+  const concepto=document.getElementById('f-concepto').value;
+  const desde=document.getElementById('f-desde').value;
+  const hasta=document.getElementById('f-hasta').value;
+  const fp=document.getElementById('f-formapago').value;
+  const comp=document.getElementById('f-comprobante').value;
+  const nombre=document.getElementById('f-nombre').value||'—';
+  const dni=document.getElementById('f-dni').value||'—';
+  const dir=document.getElementById('f-direccion').value||'—';
+  const loc=document.getElementById('f-localidad').value||'—';
+  const tel=document.getElementById('f-tel').value||'—';
+  const email=document.getElementById('f-email').value||'—';
+  const dc=deptoConfig[document.getElementById('f-depto').value];
+  const cTextos={reserva:'pago de seña/reserva de alquiler',saldo:'saldo de alquiler',total:'pago total de alquiler'};
+  const pTextos={transferencia:'Transferencia bancaria'+(comp?' (comprobante N°'+comp+')':''),efectivo:'Efectivo',mercadopago:'Mercado Pago'+(comp?' (N°'+comp+')':'')};
+
+  const txt = dc.nombre+'\n'+dc.dir+'\nDOCUMENTO NO VÁLIDO COMO FACTURA\n\n'
+    +'RECIBO N°'+nro+' – '+(fecha?fmtLarga(fecha):'—')+'\n\n'
+    +'Recibí de '+nombre+' la suma de '+(monto?'$'+Number(monto).toLocaleString('es-AR'):'$—')
+    +' pesos argentinos ('+(monto?numeroALetras(monto):'—')+') en concepto de '
+    +cTextos[concepto]+' del departamento '+dc.ref
+    +', correspondiente al período '+(desde?fmtCorta(desde):'—')+' al '+(hasta?fmtCorta(hasta):'—')+'.\n\n'
+    +'Forma de pago: '+pTextos[fp]+'.\n\n'
+    +'Aratano Matías Nicolás – DNI: 35.727.388\n\n'
+    +'DATOS INQUILINO\nNombre: '+nombre+'\nDNI: '+dni+'\nDirección: '+dir+'\nLocalidad: '+loc+'\nCelular: '+tel+'\nEmail: '+email;
+
+  navigator.clipboard.writeText(txt).then(() => showToast('¡Texto copiado!'));
+}
+
+// ─── BASE INQUILINOS ──────────────────────────────────────────
+function getInquilinos() {
+  try { return JSON.parse(localStorage.getItem('inquilinos') || '[]'); } catch { return []; }
+}
+function saveInquilinos(arr) { localStorage.setItem('inquilinos', JSON.stringify(arr)); }
+
+function guardarInquilino() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const dni = document.getElementById('f-dni').value.trim();
+  if (!nombre || !dni) { showToast('Completá nombre y DNI primero'); return; }
+
+  const registro = {
+    id: Date.now(),
+    nombre,
+    dni,
+    direccion: document.getElementById('f-direccion').value,
+    localidad: document.getElementById('f-localidad').value,
+    tel: document.getElementById('f-tel').value,
+    email: document.getElementById('f-email').value,
+    depto: deptoConfig[document.getElementById('f-depto').value].nombre,
+    desde: document.getElementById('f-desde').value,
+    hasta: document.getElementById('f-hasta').value,
+    monto: document.getElementById('f-monto').value,
+    nroRecibo: document.getElementById('f-nro').value,
+    fecha: document.getElementById('f-fecha').value,
+    guardadoEl: new Date().toISOString()
+  };
+
+  const arr = getInquilinos();
+  // Actualizar si ya existe el DNI
+  const idx = arr.findIndex(i => i.dni === dni);
+  if (idx >= 0) {
+    // Agregar como nueva reserva al mismo inquilino
+    arr.unshift(registro);
+  } else {
+    arr.unshift(registro);
+  }
+  saveInquilinos(arr);
+  showToast('Inquilino guardado ✓');
+}
+
+function renderTablaInquilinos() {
+  const arr = getInquilinos();
+  const wrap = document.getElementById('inq-tabla-wrap');
+  if (!arr.length) {
+    wrap.innerHTML = '<div class="empty-state">No hay inquilinos guardados aún.<br>Generá un recibo y presioná "Guardar inquilino".</div>';
+    return;
+  }
+
+  let html = '<table class="inq-table"><thead><tr>'
+    +'<th>Nombre</th><th>DNI</th><th>Localidad</th><th>Depto</th><th>Período</th><th>Monto</th><th></th>'
+    +'</tr></thead><tbody>';
+
+  arr.forEach(r => {
+    const periodo = (r.desde && r.hasta) ? fmtCorta(r.desde)+' – '+fmtCorta(r.hasta) : '—';
+    const monto = r.monto ? '$'+Number(r.monto).toLocaleString('es-AR') : '—';
+    html += '<tr>'
+      +'<td><strong>'+escHtml(r.nombre)+'</strong>'+(r.email?'<br><small style="color:var(--muted)">'+escHtml(r.email)+'</small>':'')+'</td>'
+      +'<td>'+escHtml(r.dni)+'</td>'
+      +'<td>'+escHtml(r.localidad||'—')+'</td>'
+      +'<td><span class="tag">'+escHtml(r.depto.replace('Departamento N°','D').replace('Duplex ',''))+'</span></td>'
+      +'<td style="font-size:12px">'+escHtml(periodo)+'</td>'
+      +'<td style="font-size:12px">'+escHtml(monto)+'</td>'
+      +'<td><button class="inq-load-btn" onclick="cargarInquilino('+r.id+')">Cargar</button></td>'
+      +'</tr>';
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+function cargarInquilino(id) {
+  const arr = getInquilinos();
+  const r = arr.find(i => i.id === id);
+  if (!r) return;
+  document.getElementById('f-nombre').value = r.nombre || '';
+  document.getElementById('f-dni').value = r.dni || '';
+  document.getElementById('f-direccion').value = r.direccion || '';
+  document.getElementById('f-localidad').value = r.localidad || '';
+  document.getElementById('f-tel').value = r.tel || '';
+  document.getElementById('f-email').value = r.email || '';
+  renderRecibo();
+  setMainTab('recibo');
+  showToast('Datos de '+r.nombre+' cargados');
+}
+
+function exportarCSV() {
+  const arr = getInquilinos();
+  if (!arr.length) { showToast('No hay datos para exportar'); return; }
+  const cols = ['nombre','dni','direccion','localidad','tel','email','depto','desde','hasta','monto','nroRecibo','fecha'];
+  const header = cols.join(';');
+  const rows = arr.map(r => cols.map(c => '"'+(r[c]||'').toString().replace(/"/g,'""')+'"').join(';'));
+  const csv = [header, ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download = 'inquilinos_deptos.csv';
+  a.click();
+}
+
+function limpiarDB() {
+  if (!confirm('¿Borrar todos los registros? Esta acción no se puede deshacer.')) return;
+  localStorage.removeItem('inquilinos');
+  renderTablaInquilinos();
+  showToast('Base borrada');
+}
+
+function escHtml(str) {
+  return (str||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── TOAST ────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// Init
+document.getElementById('f-fecha').value = new Date().toISOString().split('T')[0];
+actualizarDepto();
+renderRecibo();
+</script>
+</body>
+</html>
